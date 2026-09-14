@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>FreshCatch Wholesale</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui;background:#eef5f5;color:#18323a}header{background:#073b4c;color:#fff;padding:18px 5%;display:flex;justify-content:space-between;align-items:center}button{cursor:pointer}.hero{margin:24px 5%;padding:32px;border-radius:22px;background:linear-gradient(135deg,#073b4c,#087f8c);color:#fff}.hero h1{margin:0 0 8px}.controls{margin:0 5% 18px;display:flex;gap:10px}.controls input,.controls select{padding:12px;border:1px solid #ccdfe2;border-radius:10px}.controls input{flex:1}.grid{margin:0 5% 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}.card{background:#fff;border-radius:18px;padding:18px;box-shadow:0 6px 20px #073b4c12}.fish{font-size:54px;background:#e7f8f6;border-radius:14px;padding:16px;text-align:center}.muted{color:#71868b;font-size:13px}.price{font-size:24px;font-weight:800;color:#073b4c}.tiers{background:#f2f7f7;padding:10px;border-radius:10px;font-size:12px;line-height:1.7}.row{display:flex;gap:8px;margin-top:12px}.row input{width:70px;padding:9px}.add{flex:1;border:0;border-radius:9px;background:#073b4c;color:#fff;font-weight:700}.cart{position:fixed;right:18px;bottom:18px;background:#06d6a0;border:0;padding:13px 18px;border-radius:30px;font-weight:800}.modal{display:none;position:fixed;inset:0;background:#0008;padding:5%;z-index:10}.modal.open{display:block}.panel{background:#fff;max-width:540px;margin:auto;padding:22px;border-radius:18px;max-height:85vh;overflow:auto}.item{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ddd}.checkout{width:100%;margin-top:18px;padding:13px;border:0;border-radius:10px;background:#06d6a0;font-weight:800}@media(max-width:600px){.controls{flex-direction:column}}
+</style>
+</head><body>
+<header><strong>🐟 FreshCatch Wholesale</strong><span>B2B Seafood Marketplace</span></header>
+<section class="hero"><h1>Fresh seafood. Wholesale pricing.</h1><p>Order by kilogram with automatic bulk discounts for restaurants, retailers and caterers.</p></section>
+<div class="controls"><input id="q" placeholder="Search seafood..." oninput="render()"><select id="cat" onchange="render()"><option>All</option><option>Fresh Fish</option><option>Shellfish</option><option>Frozen</option></select></div>
+<main class="grid" id="grid"></main><button class="cart" onclick="openCart()">🛒 Cart <span id="count">0</span></button>
+<div class="modal" id="modal" onclick="if(event.target===this)closeCart()"><div class="panel"><h2>Your wholesale order</h2><div id="cart"></div><h3 id="total"></h3><button class="checkout" onclick="checkout()">Place demo order</button><button class="checkout" style="background:#eee" onclick="closeCart()">Continue shopping</button></div></div>
+<script>
+const products=[
+{id:1,name:'Atlantic Salmon',emoji:'🐟',cat:'Fresh Fish',origin:'Norway',price:18.9,stock:240},
+{id:2,name:'Golden Pomfret',emoji:'🐠',cat:'Fresh Fish',origin:'Indonesia',price:12.5,stock:120},
+{id:3,name:'Tiger Prawns',emoji:'🦐',cat:'Shellfish',origin:'Malaysia',price:21.9,stock:65},
+{id:4,name:'Sea Bass',emoji:'🐟',cat:'Fresh Fish',origin:'Singapore',price:10.8,stock:88},
+{id:5,name:'Frozen Mackerel',emoji:'🐟',cat:'Frozen',origin:'Japan',price:8.6,stock:310},
+{id:6,name:'Red Snapper',emoji:'🐠',cat:'Fresh Fish',origin:'Indonesia',price:14.7,stock:96}];
+let cart=[]; const money=n=>'$'+n.toFixed(2); const unit=(p,q)=>q>=50?p.price*.9:q>=25?p.price*.95:p.price;
+function render(){let q=document.querySelector('#q').value.toLowerCase(),c=document.querySelector('#cat').value;document.querySelector('#grid').innerHTML=products.filter(p=>(c==='All'||p.cat===c)&&p.name.toLowerCase().includes(q)).map(p=>`<article class="card"><div class="fish">${p.emoji}</div><h3>${p.name}</h3><div class="muted">${p.origin} · ${p.stock} kg available · MOQ 10 kg</div><p><span class="price">${money(p.price)}</span> / kg</p><div class="tiers">10–24 kg: ${money(p.price)}/kg<br>25–49 kg: ${money(p.price*.95)}/kg<br>50+ kg: ${money(p.price*.9)}/kg</div><div class="row"><input id="qty${p.id}" type="number" value="10" min="10" max="${p.stock}"><button class="add" onclick="add(${p.id})">Add</button></div></article>`).join('')}
+function add(id){let p=products.find(x=>x.id===id),q=+document.querySelector('#qty'+id).value;if(q<10||q>p.stock)return alert('Quantity must be between 10 and '+p.stock+' kg.');let x=cart.find(x=>x.id===id);x?x.qty+=q:cart.push({id,qty:q});drawCart()}
+function drawCart(){let total=0;document.querySelector('#count').textContent=cart.length;document.querySelector('#cart').innerHTML=cart.length?cart.map(x=>{let p=products.find(p=>p.id===x.id),s=unit(p,x.qty)*x.qty;total+=s;return `<div class="item"><span>${p.name}<br><small>${x.qty} kg × ${money(unit(p,x.qty))}</small></span><strong>${money(s)}</strong></div>`}).join(''):'<p>Your cart is empty.</p>';document.querySelector('#total').textContent='Estimated total: '+money(total)}
+function openCart(){drawCart();document.querySelector('#modal').classList.add('open')} function closeCart(){document.querySelector('#modal').classList.remove('open')}
+function checkout(){if(!cart.length)return alert('Add products first.');alert('Demo order placed. Production version should connect this flow to authentication, inventory, payments and an order database.');cart=[];drawCart();closeCart()}render();drawCart();
+</script></body></html>
